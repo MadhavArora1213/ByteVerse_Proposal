@@ -3,12 +3,12 @@ import { useGSAP } from "@gsap/react"
 import gsap from "gsap"
 import { DrawSVGPlugin } from "gsap/DrawSVGPlugin"
 import { MotionPathPlugin } from "gsap/MotionPathPlugin"
-import { ScrollTrigger } from "gsap/ScrollTrigger" // Add ScrollTrigger import
+import { ScrollTrigger } from "gsap/ScrollTrigger"
 import "remixicon/fonts/remixicon.css"
 import './App.css'
 
 // Register GSAP plugins
-gsap.registerPlugin(DrawSVGPlugin, MotionPathPlugin, ScrollTrigger) // Add ScrollTrigger here
+gsap.registerPlugin(DrawSVGPlugin, MotionPathPlugin, ScrollTrigger)
 
 // Color constants from logo
 const COLORS = {
@@ -34,15 +34,17 @@ function FullImage({ imageUrl }) {
 
 function App() {
   const [showContent, setShowContent] = useState(false)
+  const [showWelcome, setShowWelcome] = useState(false) // New state for welcome message
   const [svgContent, setSvgContent] = useState(null)
   const svgRef = useRef(null)
   const containerRef = useRef(null)
   const flashRef = useRef(null)
+  const welcomeRef = useRef(null) // New ref for welcome message
   const centerHeroRef = useRef(null)
   const clipImageRef = useRef(null)
   const secondSectionRef = useRef(null)
-  const sloganSectionRef = useRef(null) // Add ref for third section
-  const finalImageRef = useRef(null) // Add ref for the final centered image
+  const sloganSectionRef = useRef(null)
+  const finalImageRef = useRef(null)
   
   // Load the SVG content from the file
   useEffect(() => {
@@ -62,7 +64,7 @@ function App() {
       .catch(error => console.error('Error loading SVG:', error))
   }, [])
   
-  // Enhanced drawing animation with eye zoom
+  // Enhanced drawing animation with eye zoom - UPDATED to show welcome message
   useGSAP(() => {
     if (!svgContent || !svgRef.current) return
     
@@ -96,9 +98,9 @@ function App() {
         return target.getAttribute('data-fill') || target.getAttribute('fill') || "transparent"
       },
       stroke: "none",
-      duration: 1.2, // Longer duration for more dramatic effect
+      duration: 1.2,
       ease: "power1.inOut",
-      stagger: 0, // No stagger - all fill at once
+      stagger: 0,
     })
     
     // Pause to appreciate the full drawing
@@ -110,7 +112,7 @@ function App() {
       opacity: 0,
       duration: 2.5,
       ease: "power2.in",
-      transformOrigin: "50% 45%", // Focus on eye area
+      transformOrigin: "50% 45%",
       onStart: () => {
         // Flash effect as zoom intensifies
         gsap.to(flashRef.current, {
@@ -120,7 +122,8 @@ function App() {
         })
       },
       onComplete: () => {
-        setShowContent(true)
+        // Now show welcome message instead of main content
+        setShowWelcome(true)
         document.querySelector(".svg-container").style.display = "none"
         
         // Fade out the flash
@@ -133,7 +136,82 @@ function App() {
     
   }, [svgContent])
 
-  // Hero section animation after lion reveal
+  // NEW Welcome message animation
+  useGSAP(() => {
+    if (!showWelcome || !welcomeRef.current) return
+    
+    const welcomeText = welcomeRef.current.querySelectorAll('.welcome-text')
+    const sheryiansLogo = welcomeRef.current.querySelector('.sheryians-logo')
+    const ctgroupText = welcomeRef.current.querySelector('.ctgroup-text')
+    const hackathonText = welcomeRef.current.querySelector('.hackathon-text')
+    const byteverseName = welcomeRef.current.querySelector('.byteverse-name')
+    
+    gsap.set([welcomeText, sheryiansLogo, ctgroupText, hackathonText, byteverseName], {
+      opacity: 0,
+      y: 20
+    })
+
+    const tl = gsap.timeline({
+      onComplete: () => {
+        // After welcome animation completes, show main content
+        setTimeout(() => {
+          setShowContent(true)
+        }, 1000)
+      }
+    })
+    
+    // Animate logo
+    tl.to(sheryiansLogo, {
+      opacity: 1,
+      y: 0,
+      duration: 0.8,
+      ease: "power2.out"
+    })
+    
+    // Animate welcome text
+    .to(welcomeText, {
+      opacity: 1,
+      y: 0,
+      duration: 0.8,
+      stagger: 0.1,
+      ease: "power2.out"
+    }, "-=0.4")
+    
+    // Animate CTGroup text
+    .to(ctgroupText, {
+      opacity: 1,
+      y: 0,
+      duration: 0.8,
+      ease: "power2.out"
+    }, "-=0.4")
+    
+    // Animate Hackathon text
+    .to(hackathonText, {
+      opacity: 1,
+      y: 0,
+      duration: 0.8,
+      ease: "power2.out"
+    }, "-=0.6")
+    
+    // Animate ByteVerse name with special effect
+    .to(byteverseName, {
+      opacity: 1,
+      y: 0,
+      duration: 1.2,
+      ease: "elastic.out(1, 0.5)"
+    }, "-=0.4")
+    
+    // Hold for a moment, then fade everything out
+    .to({}, { duration: 1.5 })
+    .to(welcomeRef.current, {
+      opacity: 0,
+      duration: 0.8,
+      ease: "power2.in"
+    })
+    
+  }, [showWelcome])
+
+  // Hero section animation after lion reveal - NO CHANGES
   useGSAP(() => {
     if (!showContent) return
 
@@ -302,7 +380,7 @@ function App() {
       return `fill="transparent" data-fill="${fillColor}"`
     }) : null
 
-  // Update the scroll animation to maintain larger image size
+  // Update the scroll animation to maintain larger image size - NO CHANGES
   useGSAP(() => {
     if (!showContent) return
     
@@ -415,7 +493,7 @@ function App() {
     }
   }, [showContent])
 
-  // Replace the third section animation with a completely new standalone circular text animation
+  // Third section animation - NO CHANGES
   useGSAP(() => {
     if (!showContent) return
     
@@ -577,7 +655,89 @@ function App() {
         </div>
       </div>
 
-      {/* Main Content */}
+      {/* Welcome Message Component with updated styling to match BYTE VERSE image */}
+      {showWelcome && (
+        <div 
+          ref={welcomeRef}
+          className="welcome-container fixed inset-0 z-[99] flex flex-col items-center justify-center overflow-hidden"
+          style={{ backgroundColor: COLORS.darkBg }}
+        >
+          {/* All text elements now styled to match the BYTE VERSE image */}
+          <div className="welcome-text-element sheryians-text text-4xl md:text-5xl lg:text-6xl font-black mb-8"
+                style={{
+                  color: "#F5F5DC", // Cream color to match the image
+                  textShadow: '4px 4px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000',
+                  WebkitTextStroke: '3px #000000',
+                  fontFamily: "'Arial Black', 'Helvetica Neue', Arial, sans-serif",
+                  letterSpacing: '-1px',
+                  textTransform: 'uppercase',
+                  fontWeight: '900',
+                  opacity: '0.98',
+                }}>
+          SHERYIANS CODING SCHOOL
+          </div>
+          
+          <div className="welcome-text-element welcome-text text-2xl md:text-3xl font-black mb-8"
+                style={{
+                  color: "#F5F5DC",
+                  textShadow: '3px 3px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000',
+                  WebkitTextStroke: '2px #000000',
+                  fontFamily: "'Arial Black', 'Helvetica Neue', Arial, sans-serif",
+                  letterSpacing: '-0.5px',
+                  textTransform: 'uppercase',
+                  fontWeight: '900',
+                  opacity: '0.98',
+                }}>
+          WELCOME TO
+          </div>
+          
+          <div className="welcome-text-element ctgroup-text text-5xl md:text-7xl font-black mb-4"
+                style={{
+                  color: "#F5F5DC",
+                  textShadow: '4px 4px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000',
+                  WebkitTextStroke: '3px #000000',
+                  fontFamily: "'Arial Black', 'Helvetica Neue', Arial, sans-serif",
+                  letterSpacing: '-2px',
+                  lineHeight: '0.9',
+                  textTransform: 'uppercase',
+                  fontWeight: '900',
+                  opacity: '0.98',
+                }}>
+          CTGROUP
+          </div>
+          
+          <div className="welcome-text-element hackathon-text text-2xl md:text-3xl font-black mb-8"
+                style={{
+                  color: "#F5F5DC",
+                  textShadow: '3px 3px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000',
+                  WebkitTextStroke: '2px #000000',
+                  fontFamily: "'Arial Black', 'Helvetica Neue', Arial, sans-serif",
+                  letterSpacing: '-0.5px',
+                  textTransform: 'uppercase',
+                  fontWeight: '900',
+                  opacity: '0.98',
+                }}>
+          FOR HACKATHON
+          </div>
+          
+          <div className="welcome-text-element byteverse-name text-5xl md:text-7xl font-black"
+                style={{
+                  color: "#F5F5DC",
+                  textShadow: '4px 4px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000',
+                  WebkitTextStroke: '3px #000000',
+                  fontFamily: "'Arial Black', 'Helvetica Neue', Arial, sans-serif",
+                  letterSpacing: '-2px',
+                  lineHeight: '0.9',
+                  textTransform: 'uppercase',
+                  fontWeight: '900',
+                  opacity: '0.98',
+                }}>
+          THE BYTEVERSE
+          </div>
+        </div>
+      )}
+
+      {/* Main Content - No changes */}
       {showContent && (
         <div className="main w-full relative" style={{ backgroundColor: COLORS.darkBg }}>
           {/* First section with hero content */}
